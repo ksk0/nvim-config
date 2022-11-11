@@ -1,0 +1,503 @@
+#!/usr/bin/zsh
+
+autoload -U regexp-replace
+
+BIN_DIR=/usr/local/bin
+CONFIG_DIR=~/.config/nvim
+LUA_USER_DIR="$CONFIG_DIR/lua/user"
+SCRIPT_DIR=${0:a:h}
+OLD_CONFIG=""
+UPGRADED=0
+
+
+#############################################
+# init functions
+#
+init_colors(){
+	r='[31m'
+	g='[32m'
+	y='[33m'
+	b='[34m'
+	m='[35m'
+	c='[36m'
+	w='[37m'
+	n='[0m'
+}
+
+check_if_root(){
+	[[ $EUID -ne 0 ]] && return
+	[[ -z $SUDO_USER ]] && return
+
+	cat <<-EOF
+		${y}
+		   Run this script as regular user. DO NOT use sudo!
+		${n}
+	EOF
+
+	exit 1
+}
+
+check_nvim_presence(){
+	local has_nvim=$(nvim -v 2>/dev/null | grep '^NVIM')
+
+	if [[ -z $has_nvim ]]; then
+		clear
+		echo
+		cat <<-EOF | alert_box --expand --border "#"
+			"NVIM" IS NOT INSTALLED !!
+
+			${r}Exiting ...${n}
+		EOF
+		echo
+
+		exit 1
+	fi
+}
+
+
+#############################################
+# main functions
+#
+function exec_help(){
+	init_colors
+
+	cat <<-EOF
+
+		   ${w}usage:${n}
+		      install COMMAND
+
+		   ${w}commands:${n}
+		      neovim     - install latest neovim
+		      lunar      - install LunarVim configuration
+		      config     - install user config
+		      packages   - install other programs/modules (nodejs, ruby,
+		                   perl, pynvim, ruby nvim, rust, ...)
+
+		      all        - run all the above in single run
+
+	EOF
+}
+
+exec_config(){
+	install_config nvim
+
+	install_nvim_plugins ${(s: :)REQUIRED_PACKAGES[plugins]}
+	install_dap_servers  ${(s: :)REQUIRED_PACKAGES[dap]}
+}
+
+load_package_list(){
+	typeset -gA REQUIRED_PACKAGES
+
+	REQUIRED_PACKAGES=("${(@f)$(
+		cat $SCRIPT_DIR/packages |
+
+		sed -E \
+			-e 's/#.*//' \
+			-e 's/^\s+//' \
+			-e 's/\s+$//' \
+			-e 's/\s+/ /' \
+			-e 's/\[\s+/\[/' \
+			-e 's/\s+\]/\]/' |
+
+		grep -v '^$'|
+
+		awk '
+			function print_group(){
+				if (packages != ""){
+					print(tolower(group))
+					print(substr(packages,2))
+				}
+			}
+
+			/^\[[^]]+\]$/{
+				if (group != ""){
+					print_group()
+				}
+
+				sub(/\[/,"",$0)
+				sub(/\]/,"",$0)
+
+				group = $0
+				packages=""
+				next
+			}
+
+			{packages = packages " " $0}
+
+			END{
+				print_group()
+			}
+		'
+	)}")
+}
+
+#############################################
+# worker functions
+#
+install_config(){
+	local what=$1
+
+	show_alert "Installing" "user config"
+
+	load_package_list
+
+	local local_config_dir=$(cd -P $SCRIPT_DIR/config && pwd)
+
+	[[ -d ~/.config ]] || mkdir ~/.config
+
+	local cwd=$(pwd)
+	cd ~/.config/
+
+	# if there is old config present, rename the
+	# directory
+	#
+	if [[ -e $what ]]; then
+		local neovim_config_dir=$(cd -P $what && pwd)
+
+		if [[ -L $what ]] && [[ $neovim_config_dir = $local_config_dir ]]; then
+			create_treesitter_list
+			create_lsp_servers_list
+
+			cd $SCRIPT_DIR
+			return
+		fi
+
+		local olds=($(ls -1 | grep -E "^${what}-[0-9][0-9][0-9]" | sort -r))
+		local index=1
+
+		[[ -n $olds ]] && index=$((${olds[1]#*-} + 1))
+
+		OLD_CONFIG=${what}-${(l:3::0:)index}
+		mv $what $OLD_CONFIG
+	fi
+
+	if [[ $LINK_CONFIG -eq 1 ]]; then
+		ln -s $SCRIPT_DIR/config $what
+
+		[[ -d $what/plugin ]] && rm -rf $what/plugin
+	else
+		mkdir $what
+		cp -r $SCRIPT_DIR/config/* $what
+	fi
+
+	cd $cwd
+
+			create_treesitter_list
+	create_lsp_servers_list
+}
+
+install_nvim_plugins(){
+	local plugin
+
+	#######################################################
+	# while these plugins could be installed from within
+	# the "neovim", we will install them manually to make
+	# further proces of plugin installation more smooth.
+	#
+	# Some of the plugins made problems during initial
+	# instalation from within neovim, thus we are installing
+	# them manually.
+	#
+	for plugin in $@; do
+		download_nvim_plugin $plugin
+	done
+
+	sync_nvim_plugins
+}
+
+download_nvim_plugin(){
+	local address=$1
+	local package=${1#*/}
+	local url=https://github.com/$address
+	local dest=~/.local/share/nvim/site/pack/packer/start/$package
+
+	[[ -d $dest ]] && return
+
+	show_alert "Downloading" "$package"
+
+	git clone --depth 1 $url $dest
+	echo
+}
+
+
+sync_nvim_plugins(){
+	show_alert "Installing" "plugins"
+	local plugin_script=$LUA_USER_DIR/plugins.lua
+	local colorscheme='local ok, scheme = pcall(require, "onedark"); ok = ok and scheme.setup{style = "darker"} or scheme.load()'
+
+	# nvim -u $plugin_script -c 'colorscheme peachpuff' -c 'autocmd User PackerComplete quitall' -c 'PackerSync'
+	nvim -u $plugin_script -c "lua $colorscheme" -c 'autocmd User PackerComplete quitall' -c 'PackerSync'
+}
+
+install_dap_servers(){
+	show_alert "Installing" "DAP servers"
+
+	local adapters=($@)
+
+	nvim -c "MasonInstall $adapters"
+}
+
+install_lsp_servers(){
+	show_alert "Installing" "LSP servers"
+
+	get_mason_servers
+
+	nvim -c "MasonInstall $MASON_LSP_SERVERS"
+}
+
+create_treesitter_list(){
+
+	show_alert "Creating" "treesitter language list"
+
+	local languages_file=$LUA_USER_DIR/treesitter/languages.lua
+
+	{
+		if [[ -n $REQUIRED_PACKAGES[treesitter] ]]; then
+			echo "local M = {"
+			echo "${(j:,\n:)"${(@)${(@qq)${(s: :)REQUIRED_PACKAGES[treesitter]}}/#/  }"}"
+			echo "}"
+		else
+			echo "local M = {}"
+		fi
+
+		echo 
+		echo "return M"
+
+	} > $languages_file
+}
+
+create_lsp_servers_list(){
+
+	# get_mason_servers
+	get_lsp_servers_mapping
+
+	show_alert "Creating" "LSP servers list"
+
+	LSP_SERVERS=()
+
+	# for server in ${MASON_LSP_SERVERS}; do
+	for server in ${(s: :)REQUIRED_PACKAGES[lsp]}; do
+		local lsp_server=$LSP_SERVERS_MAP[$server]
+		[[ -n $lsp_server ]] && LSP_SERVERS+=($lsp_server)
+	done
+
+	local servers_file=$LUA_USER_DIR/lsp/servers.lua
+
+	{
+		if [[ -n $LSP_SERVERS ]]; then
+			echo "local servers = {"
+			echo "${(j:,\n:)"${(@)${(@qq)LSP_SERVERS}/#/  }"}"
+			echo "}"
+		else
+			echo "local servers = {}"
+		fi
+
+		echo 
+		echo "return servers"
+
+	} > $servers_file
+}
+
+get_mason_servers(){
+	[[ -n $MASON_LSP_SERVERS ]] && return
+
+	MASON_LSP_SERVERS=($(
+			cat $SCRIPT_DIR/lsp-servers |
+				sed -E \
+					-e 's/#.*//' \
+					-e 's/\s+//' |
+				grep -v '^$'
+	))
+
+	MASON_DAP_SERVERS=($(
+			cat $SCRIPT_DIR/dap-servers |
+				sed -E \
+					-e 's/#.*//' \
+					-e 's/\s+//' |
+				grep -v '^$'
+	))
+}
+
+
+get_lsp_servers_mapping(){
+	show_alert "Retrieving" "LSP servers mapping"
+
+	local raw_git="https://raw.githubusercontent.com"
+	local list_url="williamboman/mason-lspconfig.nvim/main/doc/server-mapping.md"
+
+	typeset -gA LSP_SERVERS_MAP=("${(@f)$(
+		wget -O - ${raw_git}/${list_url} 2>/dev/null  |
+		grep -E '^\| \[' | 
+		sed -E -e 's/^\| \[([^]]+)\].* \| \[([^]]+).*/\2\n\1/'
+	)}")
+}
+
+#############################################
+# notification functions
+#
+show_notifications(){
+
+	if [[ -n $OLD_CONFIG ]]; then
+		cat <<-EOF | alert_box
+			${y}
+			Your old nvim config was saved in directory:
+
+			${w}~/.config/$OLD_CONFIG${n}
+			${n}
+		EOF
+	fi
+}
+
+alert_box(){
+	local width=80
+	local void
+	local align=C
+	local expand=0
+	local border="*"
+
+	############################################################
+	# parse command options 
+	#   --left       - text aligment
+	#   --right      -    -||-
+	#   -- center    -    -||-
+	#
+	#   -- expand    - add empty line before, and after text
+	#
+	local ARGS BORDER WIDTH
+
+	zparseopts -E -D -A ARGS \
+		-left \
+		-right \
+		-center \
+		-expand \
+		-width:=WIDTH \
+		-border:=BORDER
+
+	[[ ${+ARGS[--left]}   -eq 1 ]] && align=L
+	[[ ${+ARGS[--right]}  -eq 1 ]] && align=R
+	[[ ${+ARGS[--center]} -eq 1 ]] && align=C
+	[[ ${+ARGS[--expand]} -eq 1 ]] && expand=1
+
+	[[ -n $BORDER ]] && border=${${BORDER[2]}[1]}
+	[[ -n $WIDTH  ]] && width=${WIDTH[2]}
+
+	local lines=("$@")
+	local bline=${${(l:$width::.:)void}//./${border}}
+
+	[[ -z $lines ]] && lines=("${(@f)$(cat)}")
+
+	echo 
+	echo "${g}${bline}${n}"
+
+	[[ $expand -eq 1 ]] && echo "${g}${border}${(l:$((width - 2)):: :)void}${border}${n}"
+
+	local text
+	local len
+	local left
+	local right
+
+	for line in "${(@)lines}"; do
+		text=$line
+
+		# strip ansi sequence
+		#
+		strip_ansi_escape text
+
+		len=$#text
+
+		case $align in 
+			C)
+				left=$(((width - 2 - len) / 2))
+				right=$((width - 2 - len - left))
+				;;
+			L)
+				left=0
+				right=$((width - 2 - len ))
+				;;
+			R)
+				right=0
+				left=$((width - 2 - len ))
+				;;
+		esac
+
+		echo -n "${g}${border}${(l:$left:: :)void}${n}"
+		echo -n "${y}${line}${n}"
+		echo -n "${g}${(l:$right:: :)void}${border}${n}"
+		echo
+
+	done
+
+	[[ $expand -eq 1 ]] && echo "${g}${border}${(l:$((width - 2)):: :)void}${border}${n}"
+
+	echo "${g}${bline}${n}"
+	echo
+}
+
+strip_ansi_escape(){
+	if [[ -o RE_MATCH_PCRE ]]; then
+		eval "regexp-replace $1 '(\x9B|\x1B\[)[0-9:;<>=?]*[ -\/]*[@-~]' ''"
+	else
+		setopt RE_MATCH_PCRE
+		eval "regexp-replace $1 '(\x9B|\x1B\[)[0-9:;<>=?]*[ -\/]*[@-~]' ''"
+		unsetopt RE_MATCH_PCRE
+	fi
+}
+
+show_alert(){
+	local action=$1
+	local object=$2
+	local alert_width=80
+	local void
+
+	if [[ -z $object ]]; then
+		object=$action
+		action=""
+	else
+		action="${action}: "
+	fi
+	
+	echo 
+	echo "${g}${(l:$alert_width::#:)void}"
+	echo "${g}# ${w}${action}${y}${object}${n}"
+	echo "${g}${(l:$alert_width::#:)void}${n}"
+	echo ${n}
+}
+
+parse_arguments(){
+	LINK_CONFIG=0
+
+	############################################################
+	# parse command options 
+	#   --link       - do not copy config file, instad create
+	#                  link to config directory here
+	#
+	local ARGS
+
+	zparseopts -E -D -A ARGS \
+		-link
+
+	[[ ${+ARGS[--link]} -eq 1 ]] && LINK_CONFIG=1
+
+	SCRIPT_COMMAND=exec_config
+	SCRIPT_ARGS=("$@")
+
+	return
+
+	local commands=(all lunar config neovim packages packer plugins)
+	local cmd=(${(M)commands:#${1}*}) 
+
+	[[ $#cmd -eq 0 ]] && SCRIPT_COMMAND="exec_help"                         
+	[[ $#cmd -eq 1 ]] && SCRIPT_COMMAND="exec_$cmd"                         
+	[[ $#cmd -gt 1 ]] && SCRIPT_COMMAND="exec_help"
+
+	shift 2>/dev/null
+}
+
+init_colors
+check_nvim_presence
+
+parse_arguments $@
+
+$SCRIPT_COMMAND "${SCRIPT_ARGS[@]}"
+
+show_notifications

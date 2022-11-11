@@ -1,0 +1,57 @@
+[plugins]
+  ###############################################################################
+  # These plugins will be manualy downloaded, since some of them issue
+  # warning if automaticaly installed during PackerSync command
+  #
+  wbthomason/packer.nvim
+  akinsho/toggleterm.nvim
+  nvim-treesitter/nvim-treesitter
+  navarasu/onedark.nvim
+
+
+[LSP]
+  ###############################################################################
+  # formatters
+  #
+  # black                # python formatter
+  # blue                 # python formatter (alternative to black)
+  # shfmt                # A shell formatter (sh/bash/mksh)
+  # prettierd            # formatter for many languages
+  # luaformatter         # lua formatter
+  
+  
+  ###############################################################################
+  # linters
+  #
+  pyright               # Static type checker for Python (by Microsoft)
+  python-lsp-server     # fork of the python-language-server project, maintained by the Spyder IDE team and the community
+  shellcheck            # static analysis tool for shell scripts
+  
+  
+  ###############################################################################
+  # language servers
+  #
+  awk-language-server
+  bash-language-server
+  lua-language-server
+  yaml-language-server
+  dockerfile-language-server
+  json-lsp
+  taplo                 # TOML language server
+  lemminx               # XML language server
+
+
+[DAP]
+  ###############################################################################
+  # DAP (Debug Adapter Protocol) servers
+  #
+  debugpy               # debug adapter protocol for python
+  bash-debug-adapter    # debug adapter for bash
+
+
+[treesitter]
+  ###############################################################################
+  # Support for following languages will be installed automatically
+  #
+  bash c html json lua make markdown
+  perl python regex toml yaml
