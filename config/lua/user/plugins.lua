@@ -204,9 +204,11 @@ return packer.startup(function(use)
   -- ===============================================================
   -- localy developed plugins
   --
-  use "/home/koske/develop/nvim/keymap-overlay"
-  use "/home/koske/develop/nvim/fade-color"
   -- use "/home/koske/develop/nvim/key-notations"
+  use {
+    "/home/koske/develop/nvim/keymap-overlay",
+    requires = {"ksk0/nvim-fade-color"}
+  }
 
   -- ===============================================================
   -- Initial download of plugins.
