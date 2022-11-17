@@ -31,6 +31,8 @@ local config = {
     height = function()
       return math.floor((vim.o.lines - vim.o.cmdheight) * 0.9)
     end,
+
+    row = 1
   },
 }
 
