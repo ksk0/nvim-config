@@ -27,7 +27,6 @@ require "user.alpha"                  -- done
 require "user.whichkey"               -- done (left for later)
 require "user.autocommands"           -- done
 require "user.runner".setup()         -- done
-require "project-tools"
 
 -- require "user.neo-tree"
 -- require "user.flexy-files"
