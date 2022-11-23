@@ -146,10 +146,7 @@ return packer.startup(function(use)
   -- ===============================================================
   -- TreeSitter plugin
   --
-  use {
-    'nvim-treesitter/nvim-treesitter',
-    -- run = function() require('nvim-treesitter.install').update({ with_sync = true }) end,
-  }
+  use "nvim-treesitter/nvim-treesitter"
 
   -- ===============================================================
   -- Completion plugins
@@ -182,11 +179,8 @@ return packer.startup(function(use)
   -- ===============================================================
   -- DEBUGGING
   --
-  use {
-    "rcarriga/nvim-dap-ui",
-    requires = {"mfussenegger/nvim-dap"}
-  }
-
+  use "mfussenegger/nvim-dap"              -- need this to use DAPs in nvim
+  use "rcarriga/nvim-dap-ui"               -- turn nvim into debuging ui
   use "jbyuki/one-small-step-for-vimkind"  -- lua deubber
 
   -- use "mfussenegger/nvim-dap-python"
@@ -204,11 +198,13 @@ return packer.startup(function(use)
   -- ===============================================================
   -- localy developed plugins
   --
-  -- use "/home/koske/develop/nvim/key-notations"
   use {
     "/home/koske/develop/nvim/keymap-overlay",
     requires = {"ksk0/nvim-fade-color"}
   }
+  
+  use "ksk0/nvim-bricks"
+  use  "/home/koske/develop/nvim/nvim-project-tools"
 
   -- ===============================================================
   -- Initial download of plugins.

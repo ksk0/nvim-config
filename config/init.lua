@@ -1,7 +1,7 @@
 
-require "user.paths"                  -- done
 require "user.options"                -- done
 require "user.plugins"                -- done
+require "user.bricks"                 -- done
 
 require "user.notify"                 -- done
 require "user.keymaps"                -- done
@@ -27,6 +27,7 @@ require "user.alpha"                  -- done
 require "user.whichkey"               -- done (left for later)
 require "user.autocommands"           -- done
 require "user.runner".setup()         -- done
+require "project-tools"
 
 -- require "user.neo-tree"
 -- require "user.flexy-files"
