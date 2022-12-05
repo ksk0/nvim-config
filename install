@@ -225,7 +225,6 @@ sync_nvim_plugins(){
 	local plugin_script=$LUA_USER_DIR/plugins.lua
 	local colorscheme='local ok, scheme = pcall(require, "onedark"); ok = ok and scheme.setup{style = "darker"} or scheme.load()'
 
-	# nvim -u $plugin_script -c 'colorscheme peachpuff' -c 'autocmd User PackerComplete quitall' -c 'PackerSync'
 	nvim -u $plugin_script -c "lua $colorscheme" -c 'autocmd User PackerComplete quitall' -c 'PackerSync'
 }
 
@@ -234,7 +233,8 @@ install_dap_servers(){
 
 	local adapters=($@)
 
-	nvim -c "MasonInstall $adapters"
+	# nvim -c 'autocmd WinClosed * quitall' -c 'lua vim.notify = function() return end' -c "MasonInstall $adapters"
+	nvim -c 'nmap q :quitall<CR>' -c 'lua vim.notify = function() return end' -c "MasonInstall $adapters"
 }
 
 install_lsp_servers(){

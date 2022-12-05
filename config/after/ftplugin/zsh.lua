@@ -6,7 +6,7 @@ local buffer_options = {
 
 local window_options = {
   foldnestmax = 1,         -- max sublevels of fold
-  foldmethod  = "syntax",  -- fold by syntax
+  foldmethod  = "expr",  -- fold by syntax
 }
 
 for k, v in pairs(buffer_options) do
