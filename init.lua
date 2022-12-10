@@ -1,12 +1,7 @@
-require "user.initialise"
+require "user.initialize"
 
-require "user.bricks"                 -- done
 require "user.options"                -- done
-require "user.plugins"                -- done
-
-require "user.notify"                 -- done
 require "user.keymaps"                -- done
-require "user.colorscheme"            -- done
 require "user.completion"             -- done
 
 -- require "user.illuminate"             -- done (maybe later)
