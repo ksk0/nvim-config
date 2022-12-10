@@ -1,9 +1,8 @@
 local fn = vim.fn
 local hash = require("user.initialize.md5sum")
 
-local M = {}
 
-M.load_list = function()
+load_list = function()
   local config_root = fn.stdpath('config')
   local package_list = config_root .. "/packages"
 
@@ -49,7 +48,6 @@ M.load_list = function()
     line = f:read("l")
   end
 
-
   f:close()
 
   local hashes = {}
@@ -62,5 +60,7 @@ M.load_list = function()
 
   return packages
 end
+
+local M = load_list()
 
 return M

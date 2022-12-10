@@ -1,4 +1,5 @@
 local fn = vim.fn
+local api = vim.api
 
 local M = {}
 
@@ -16,19 +17,19 @@ M.packer = function ()
   while vim.g.packer_has_done ~= 1 do
     vim.cmd [[
       redraw
-      sleep 200m
+      sleep 1000m
     ]]
   end
 
-  vim.cmd [[
-    unlet g:packer_has_done
-    autocmd! User PackerComplete
-    quit
-  ]]
+  local bf_name = fn.bufname("\\[packer\\]")
+  local winid = fn.bufwinid(bf_name)
+
+  vim.g.packer_has_done = nil
+  api.nvim_win_close(winid, true)
 end
 
 M.mason = function ()
-  local dap_pkgs = pkgs.load_list().DAP
+  local dap_pkgs = pkgs.DAP
 
   if dap_pkgs then
     local mason_pkgs = fn.join(vim.tbl_keys(dap_pkgs)," ")

@@ -22,9 +22,7 @@ require("user.colorscheme")
 require("user.notify")
 require("user.plugins")
 
-local packages = pkgs.load_list()
-
-plugin.download(packages.plugins)
+plugin.download(pkgs.plugins)
 
 sync.packer()
 
