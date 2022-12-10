@@ -1,7 +1,8 @@
+require "user.initialise"
 
+require "user.bricks"                 -- done
 require "user.options"                -- done
 require "user.plugins"                -- done
-require "user.bricks"                 -- done
 
 require "user.notify"                 -- done
 require "user.keymaps"                -- done

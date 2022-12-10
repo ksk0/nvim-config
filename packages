@@ -1,12 +1,13 @@
+###############################################################################
+# ha ha ha
+#
+#
 [plugins]
   ###############################################################################
   # These plugins will be manualy downloaded, since some of them issue
   # warning if automaticaly installed during PackerSync command
   #
-  wbthomason/packer.nvim
-  akinsho/toggleterm.nvim
-  nvim-treesitter/nvim-treesitter
-  navarasu/onedark.nvim
+  # nvim-treesitter/nvim-treesitter
 
 
 [LSP]
@@ -24,7 +25,8 @@
   # linters
   #
   pyright               # Static type checker for Python (by Microsoft)
-  python-lsp-server     # fork of the python-language-server project, maintained by the Spyder IDE team and the community
+  python-lsp-server     # fork of the python-language-server project,
+                        # maintained by the Spyder IDE team and the community
   shellcheck            # static analysis tool for shell scripts
   
   

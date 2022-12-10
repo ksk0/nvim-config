@@ -1,3 +1,4 @@
+plugin/
 config/plugin/
-config/lua/user/lsp/servers.lua
+lua/user/lsp/servers.lua
 *.sw*
