@@ -1,0 +1,318 @@
+#!/usr/bin/zsh
+
+autoload -U regexp-replace
+
+SCRIPT_DIR=${0:a:h}
+GIT_PROJECT="nvim-config"
+
+BIN_DIR=/usr/local/bin
+LUA_USER_DIR="$CONFIG_DIR/lua/user"
+UPGRADED=0
+
+
+#############################################
+# init functions
+#
+init_colors(){
+	r='[31m'
+	g='[32m'
+	y='[33m'
+	b='[34m'
+	m='[35m'
+	c='[36m'
+	w='[37m'
+	n='[0m'
+}
+
+check_if_root(){
+	[[ $EUID -ne 0 ]] && return
+	[[ -z $SUDO_USER ]] && return
+
+	cat <<-EOF
+		${y}
+		   Run this script as regular user. DO NOT use sudo!
+		${n}
+	EOF
+
+	exit 1
+}
+
+check_for_nvim(){
+	local has_nvim=$(nvim -v 2>/dev/null | grep '^NVIM')
+
+	[[ -n $has_nvim ]] && return
+
+	clear
+	echo
+	cat <<-EOF | alert_box --expand --border "#"
+		"NVIM" IS NOT INSTALLED !!
+
+		${r}Exiting ...${n}
+	EOF
+	echo
+
+	exit 1
+}
+
+
+#############################################
+# main functions
+#
+install_config(){
+	CONFIG_DIR=$(
+		nvim --headless \
+			-u /dev/null \
+			-c 'lua print(vim.fn.stdpath("config"))' \
+			-c 'quitall' 2>&1
+	)
+
+	local cwd=$(pwd)
+
+	cd $SCRIPT_DIR
+
+	local local_project=$(
+		git config --local remote.origin.url |
+		sed -E -e 's:[^/]+/::' -e 's:.git$::'
+	)
+
+	local config_project=$(
+		if [[ -e $CONFIG_DIR ]] then
+			cd $CONFIG_DIR
+			git config --local remote.origin.url |
+			sed -E -e 's:[^/]+/::' -e 's:.git$::'
+		fi
+	)
+
+	if [[ $local_project != $GIT_PROJECT ]] then
+		cat <<-EOF | alert_box --expand
+			Something is off! This script should be
+			in "nvim-config" project but it is not.
+
+			${r}Exiting ...${n}
+
+		EOF
+
+		exit 1
+	fi
+
+	if [[ $SCRIPT_DIR = $CONFIG_DIR ]] || [[ $config_project = $GIT_PROJECT ]] then
+		cat <<-EOF | alert_box --expand
+			Installation of "nvim-config" has already be done.
+			We can only update the repository from "github".
+		EOF
+
+		yesno_question "Do you want to update local config [Y/n]:" Y
+
+		local result=$?
+		echo
+
+		[[ $result -ne 0 ]] && exit
+
+		cd $CONFIG_DIR
+
+		git pull
+
+		cat <<-EOF | alert_box --expand
+			"nvim-config" has been updated.
+			Run nvim and new config will bee
+			initialized automaticaly.
+		EOF
+
+		return
+	fi
+
+	if [[ -e $CONFIG_DIR ]] then
+		local what=${CONFIG_DIR##*/}
+
+		local olds=($(
+			ls -1 ${CONFIG_DIR%/*} |
+				grep -E "^${what}-[0-9][0-9][0-9]" |
+				sort -r
+		))
+
+		local index=1
+
+		[[ -n $olds ]] && index=$((${olds[1]#*-} + 1))
+
+		OLD_CONFIG=${CONFIG_DIR}-${(l:3::0:)index}
+
+		mv ${CONFIG_DIR} $OLD_CONFIG
+	fi
+
+	mkdir -p ${CONFIG_DIR%/*}
+
+	local dst=${CONFIG_DIR##*/}
+	local src=${CONFIG_DIR##*/}
+
+	cp -r $SCRIPT_DIR $CONFIG_DIR
+
+	cat <<-EOF | alert_box --expand
+		"nvim-config" has been installed.
+		Run "nvim" and new config will bee
+		initialized automaticaly.
+	EOF
+}
+
+
+#############################################
+# notification functions
+#
+show_notifications(){
+
+	if [[ -n $OLD_CONFIG ]]; then
+		cat <<-EOF | alert_box
+			${y}
+			Your old nvim config was saved in directory:
+
+			${w}${OLD_CONFIG}${n}
+			${n}
+		EOF
+	fi
+}
+
+yesno_question(){
+	local prompt=$1
+	local default=${(L)2}
+
+	local yesno
+
+	echo
+	while true; do
+		echo -n '[1A[2K'
+		echo -n "${prompt} "
+		read yesno
+
+		if [[ -z $yesno ]] || [[ ${(L)yesno} = y ]] || [[ ${(L)yesno} = n ]] then
+			echo 
+			break
+		fi
+	done
+
+	[[ $default = n ]] && [[ ${(L)yesno} != y ]] && return 1
+	[[ $default = y ]] && [[ ${(L)yesno} != n ]] && return 0
+
+	[[ ${(L)yesno} = y ]] && return 0
+	[[ ${(L)yesno} = n ]] && return 1
+
+	return 1
+}
+
+alert_box(){
+	local width=80
+	local void
+	local align=C
+	local expand=0
+	local border="#"
+
+	############################################################
+	# parse command options 
+	#   --left       - text aligment
+	#   --right      -    -||-
+	#   -- center    -    -||-
+	#
+	#   -- expand    - add empty line before, and after text
+	#
+	local ARGS BORDER WIDTH
+
+	zparseopts -E -D -A ARGS \
+		-left \
+		-right \
+		-center \
+		-expand \
+		-width:=WIDTH \
+		-border:=BORDER
+
+	[[ ${+ARGS[--left]}   -eq 1 ]] && align=L
+	[[ ${+ARGS[--right]}  -eq 1 ]] && align=R
+	[[ ${+ARGS[--center]} -eq 1 ]] && align=C
+	[[ ${+ARGS[--expand]} -eq 1 ]] && expand=1
+
+	[[ -n $BORDER ]] && border=${${BORDER[2]}[1]}
+	[[ -n $WIDTH  ]] && width=${WIDTH[2]}
+
+	local lines=("$@")
+	local bline=${${(l:$width::.:)void}//./${border}}
+
+	[[ -z $lines ]] && lines=("${(@f)$(cat)}")
+
+	echo 
+	echo "${g}${bline}${n}"
+
+	[[ $expand -eq 1 ]] && echo "${g}${border}${(l:$((width - 2)):: :)void}${border}${n}"
+
+	local text
+	local len
+	local left
+	local right
+
+	for line in "${(@)lines}"; do
+		text=$line
+
+		# strip ansi sequence
+		#
+		strip_ansi_escape text
+
+		len=$#text
+
+		case $align in 
+			C)
+				left=$(((width - 2 - len) / 2))
+				right=$((width - 2 - len - left))
+				;;
+			L)
+				left=0
+				right=$((width - 2 - len ))
+				;;
+			R)
+				right=0
+				left=$((width - 2 - len ))
+				;;
+		esac
+
+		echo -n "${g}${border}${(l:$left:: :)void}${n}"
+		echo -n "${y}${line}${n}"
+		echo -n "${g}${(l:$right:: :)void}${border}${n}"
+		echo
+
+	done
+
+	[[ $expand -eq 1 ]] && echo "${g}${border}${(l:$((width - 2)):: :)void}${border}${n}"
+
+	echo "${g}${bline}${n}"
+	echo
+}
+
+strip_ansi_escape(){
+	if [[ -o RE_MATCH_PCRE ]]; then
+		eval "regexp-replace $1 '(\x9B|\x1B\[)[0-9:;<>=?]*[ -\/]*[@-~]' ''"
+	else
+		setopt RE_MATCH_PCRE
+		eval "regexp-replace $1 '(\x9B|\x1B\[)[0-9:;<>=?]*[ -\/]*[@-~]' ''"
+		unsetopt RE_MATCH_PCRE
+	fi
+}
+
+show_alert(){
+	local action=$1
+	local object=$2
+	local alert_width=80
+	local void
+
+	if [[ -z $object ]]; then
+		object=$action
+		action=""
+	else
+		action="${action}: "
+	fi
+	
+	echo 
+	echo "${g}${(l:$alert_width::#:)void}"
+	echo "${g}# ${w}${action}${y}${object}${n}"
+	echo "${g}${(l:$alert_width::#:)void}${n}"
+	echo ${n}
+}
+
+init_colors
+check_for_nvim
+install_config
+show_notifications
