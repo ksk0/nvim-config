@@ -125,57 +125,6 @@ local save_hashes = function (what)
   f:close()
 end
 
-local load_packages_list = function()
-  local content = read_file(files.packages)
-
-  if not content then return {} end
-
-  local group
-  local pkgs = {}
-
-  for _,line in ipairs(content) do
-    line = line:gsub("^%s+", "")
-    line = line:gsub("%s*#.*", "")
-    line = line:gsub("%s+$", "")
-    line = line:gsub("%s+", " ")
-
-    if line:find("^%[%s*[^%]]*%s*%]$") then
-      local gname = line
-
-      gname = gname:gsub("%[%s*", "")
-      gname = gname:gsub("%s*%]", "")
-
-      if not gname:find("^[^ ]+$") then
-        vim.api.nvim_err_writeln('Error: "' .. line .. '" is not valid group definition! Ignoring ...')
-      else
-        group = gname
-        pkgs[group] = pkgs[group] or {}
-      end
-
-    elseif not line:find("^$") then
-      for pkg in vim.gsplit(line, " ") do
-        if pkg:find("^[%w-_.]+$") then
-          pkgs[group][pkg] = true
-        elseif (group == "plugins") and pkg:find("^[%w-_./]+$") then
-          pkgs[group][pkg] = true
-        else
-          vim.api.nvim_err_writeln('Error: "' .. pkg .. '" is not valid group item! Ignoring ...')
-        end
-      end
-    end
-  end
-
-  for section in pairs(pkgs) do
-    P[section] = vim.tbl_keys(pkgs[section])
-  end
-
-  local hashes = H.new
-
-  for section in pairs(P) do
-    hashes[section] = md5sum.list(P[section])
-  end
-end
-
 local is_new = function (what)
   local new = H.new
   local old = H.old
