@@ -1,5 +1,6 @@
 plugin/
 config/plugin/
 lua/user/lsp/servers.lua
+lua/user/treesitter/languages.lua
 *.sw*
 .hashes

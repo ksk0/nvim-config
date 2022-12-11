@@ -14,6 +14,7 @@ vim.cmd [[
 vim.api.nvim_create_user_command("ConfigInitializeMason",  sync.mason, {})
 
 plugin.download("wbthomason/packer.nvim")
+plugin.download("nvim-treesitter/nvim-treesitter")
 plugin.download("navarasu/onedark.nvim")
 plugin.download("rcarriga/nvim-notify")
 plugin.download("nvim-lua/plenary.nvim")
