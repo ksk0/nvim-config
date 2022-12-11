@@ -14,6 +14,8 @@ plugin.download("navarasu/onedark.nvim")
 plugin.download("rcarriga/nvim-notify")
 plugin.download("nvim-lua/plenary.nvim")
 plugin.download("ksk0/nvim-bricks")
+plugin.download("williamboman/mason.nvim")
+plugin.download("williamboman/mason-lspconfig.nvim")
 
 require("user.bricks")
 require("user.colorscheme")
