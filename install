@@ -123,7 +123,7 @@ install_config(){
 
 		cat <<-EOF | alert_box --expand
 			"nvim-config" has been updated.
-			Run nvim and new config will bee
+			Run nvim and new config will be
 			initialized automaticaly.
 		EOF
 
@@ -157,7 +157,7 @@ install_config(){
 
 	cat <<-EOF | alert_box --expand
 		"nvim-config" has been installed.
-		Run "nvim" and new config will bee
+		Run "nvim" and new config will be
 		initialized automaticaly.
 	EOF
 }
