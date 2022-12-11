@@ -112,6 +112,15 @@ install_config(){
 
 		git pull
 
+		if [[ $? -ne 0 ]]; then
+			cat <<-EOF | alert_box --expand
+				failed to pull updates from github
+				check manualy what went wrong
+			EOF
+
+			exit 1
+		fi
+
 		cat <<-EOF | alert_box --expand
 			"nvim-config" has been updated.
 			Run nvim and new config will bee
