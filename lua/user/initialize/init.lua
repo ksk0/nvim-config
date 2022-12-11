@@ -6,11 +6,6 @@ local plugin = require("user.initialize.plugin")
 local pkgs   = require("user.initialize.packages")
 local sync   = require("user.initialize.sync")
 
-vim.cmd [[
-  colorscheme default
-  set background=dark
-]]
-
 vim.api.nvim_create_user_command("ConfigInitializeMason",  sync.mason, {})
 
 plugin.download("wbthomason/packer.nvim")
