@@ -2,13 +2,11 @@ local fn = vim.fn
 
 local M = {}
 
-M.downloaded = {}
-
 M.download= function(plugin)
   if not plugin then return end
 
   if type(plugin) == "table" then
-    for item in pairs(plugin) do
+    for _,item in ipairs(plugin) do
       M.download(item)
     end
 
@@ -37,7 +35,6 @@ M.download= function(plugin)
   }
 
   vim.cmd ("packadd " .. plugin_name)
-  M.downloaded[plugin_name] = true
 end
 
 return M

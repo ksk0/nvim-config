@@ -1,42 +1,64 @@
 local fn = vim.fn
 local api = vim.api
+local pkgs = require("user.initialize.packages")
 
 local M = {}
 
-local plugin = require("user.initialize.plugin")
-local pkgs = require("user.initialize.packages")
-
 M.packer = function ()
-  if not plugin.downloaded["packer.nvim"] then return end
+  if not pkgs.is_new("plug_file") then return end
 
   vim.g.packer_has_done = 0
 
+  -- when packer sync is done, set global variable
+  --
   vim.cmd 'autocmd User PackerComplete let g:packer_has_done = 1'
   vim.cmd 'PackerSync'
 
+  vim.notify("Initializing packer")
+
+  -- wait for global variable to be set, signaling
+  -- end of PackerSync
+  --
   while vim.g.packer_has_done ~= 1 do
     vim.cmd [[
       redraw
-      sleep 1000m
+      sleep 200m
     ]]
   end
 
-  local bf_name = fn.bufname("\\[packer\\]")
+  -- find and close floating window
+  --
+  local bf_name
+
+  for _,buffer in pairs(fn.tabpagebuflist()) do
+    bf_name = vim.api.nvim_buf_get_name(buffer)
+
+    if bf_name:find('%[packer%]$') then
+      break
+    end
+  end
+
   local winid = fn.bufwinid(bf_name)
 
   vim.g.packer_has_done = nil
   api.nvim_win_close(winid, true)
+
+  pkgs.save_hashes("plug_file")
 end
 
 M.mason = function ()
-  local dap_pkgs = pkgs.DAP
+  api.nvim_del_user_command("ConfigInitializeMason")
 
-  if dap_pkgs then
-    local mason_pkgs = fn.join(vim.tbl_keys(dap_pkgs)," ")
-    vim.cmd('MasonInstall ' .. mason_pkgs)
+  if pkgs.is_new("DAP") and #pkgs.DAP ~= 0 then
+    vim.cmd('MasonInstall ' .. fn.join(pkgs.DAP," "))
+  elseif pkgs.is_new("LSP") then
+    vim.cmd('Mason')
   else
-    vim.cmd 'Mason'
+    return
   end
+
+  vim.notify("Initializing mason")
+  pkgs.save_hashes("DAP")
 end
 
 return M

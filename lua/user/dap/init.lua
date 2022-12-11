@@ -1,4 +1,4 @@
-vim.cmd 'MasonInstallDAP'
+vim.cmd 'ConfigInitializeMason'
 
 require "user.dap.dap-ui"
 require "user.dap.adapters"

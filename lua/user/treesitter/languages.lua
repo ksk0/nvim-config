@@ -1,16 +1,1 @@
-local M = {
-  'bash',
-  'c',
-  'html',
-  'json',
-  'lua',
-  'make',
-  'markdown',
-  'perl',
-  'python',
-  'regex',
-  'toml',
-  'yaml'
-}
-
-return M
+return { "regex", "perl", "python" }

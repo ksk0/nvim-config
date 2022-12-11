@@ -2,3 +2,4 @@ plugin/
 config/plugin/
 lua/user/lsp/servers.lua
 *.sw*
+.hashes

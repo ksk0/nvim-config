@@ -3,13 +3,15 @@
 -- ===============
 
 local plugin = require("user.initialize.plugin")
-local pkgs = require("user.initialize.packages")
-local sync = require("user.initialize.sync")
+local pkgs   = require("user.initialize.packages")
+local sync   = require("user.initialize.sync")
 
 vim.cmd [[
   colorscheme default
   set background=dark
 ]]
+
+vim.api.nvim_create_user_command("ConfigInitializeMason",  sync.mason, {})
 
 plugin.download("wbthomason/packer.nvim")
 plugin.download("navarasu/onedark.nvim")
@@ -22,11 +24,24 @@ require("user.colorscheme")
 require("user.notify")
 require("user.plugins")
 
-plugin.download(pkgs.plugins)
+if not pkgs.is_new() then
+  return
+end
 
-sync.packer()
+if pkgs.is_new("plugins") then
+  plugin.download(pkgs.plugins)
+end
 
-vim.api.nvim_create_user_command("MasonInstallDAP", sync.mason, {
-    desc = "Opens mason's UI window.",
-    nargs = 0,
-})
+if pkgs.is_new("LSP") then
+  require("user.initialize.lsp").setup()
+end
+
+if pkgs.is_new("treesitter") then
+  require("user.initialize.treesitter").setup()
+end
+
+if pkgs.is_new("plug_file") then
+  sync.packer()
+end
+
+pkgs.save_hashes("pkgs_file")

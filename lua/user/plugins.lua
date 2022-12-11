@@ -1,4 +1,6 @@
 -- =================================================================
+--
+--
 
 -- Autocommand that reloads neovim whenever you save the plugins.lua file
 --
@@ -13,6 +15,7 @@ vim.cmd [[
 -- Have packer use a popup window
 --
 packer = require("packer")
+
 packer.init {
   display = {
     open_fn = function()
@@ -20,7 +23,6 @@ packer.init {
     end,
   },
 }
-
 
 -- =================================================================
 -- Install plugins
