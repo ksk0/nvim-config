@@ -25,8 +25,8 @@ P.LSP = {
   --  shfmt               -- A shell formatter (sh/bash/mksh)
   --  prettierd           -- formatter for many languages
   --  luaformatter        -- lua formatter
-  
-  
+
+
   -- ==========================================================================
   --  linters
   -- 
@@ -34,8 +34,8 @@ P.LSP = {
   "python-lsp-server",    -- fork of the python-language-server project,
                           -- maintained by the Spyder IDE team and the community
   "shellcheck",           -- static analysis tool for shell scripts
-  
-  
+
+
   -- ==========================================================================
   --  language servers
   -- 
@@ -58,24 +58,36 @@ P.DAP = {
 }
 
 P.treesitter = {
-  -- ==========================================================================
-  --  Support for following languages will be installed automatically
+  -- ===============================
+  --  Install support for following
+  --  languages automatically
   -- 
-  "bash",
-  "c",
-  "html",
-  "json",
-  "lua",
-  "make",
-  "markdown",
-  "perl",
-  "python",
-  "regex",
-  "toml",
-  "yaml",
-  "awk",
+  install = {
+    "bash",
+    "c",
+    "html",
+    "json",
+    "lua",
+    "make",
+    "markdown",
+    "perl",
+    "python",
+    "regex",
+    "toml",
+    "yaml",
+    "awk",
+  },
+
+  -- ===============================
+  --  Ignore this languages
+  -- 
+  ignore = {
+    "vim",
+    "help"
+  },
 }
 
+print(vim.inspect(vim.tbl_flatten(P.treesitter)))
 
 -- ============================================================================
 -- Worker functions

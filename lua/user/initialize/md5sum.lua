@@ -1,6 +1,37 @@
 local fn = vim.fn
 
+
 local M = {}
+
+local function flatten(item, prefix, extension)
+  if extension and type(extension) ~= "number" then
+    if prefix then
+      prefix = prefix .. ":" .. extension
+    else
+      prefix = extension
+    end
+  end
+
+  local pfx = ""
+
+  if prefix then
+    pfx = prefix .. ":"
+  end
+
+
+  if type(item) ~= "table" then
+    local new_item = pfx .. tostring(item)
+    return {pfx .. tostring(item)}
+  end
+
+  local list = {}
+
+  for k,v in pairs(item) do
+    list = vim.fn.extend(list, flatten(v,prefix,k))
+  end
+
+  return list
+end
 
 M.string = function(sum_string)
   return fn.system('md5sum',sum_string):gsub(" .*","")
@@ -13,7 +44,7 @@ M.list= function(sum_list)
 end
 
 M.table= function(sum_table)
-  return M.list(vim.tbl_keys(sum_table))
+  return M.list(flatten(sum_table))
 end
 
 M.file = function (sum_file)
