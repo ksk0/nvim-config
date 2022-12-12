@@ -156,7 +156,7 @@ local init = function ()
   H.new.plug_file = md5sum.file(files.plugins)
 
   for section in pairs(P) do
-    H.new[section] = md5sum.list(P[section])
+    H.new[section] = md5sum.table(P[section])
   end
 end
 

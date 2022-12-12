@@ -40,11 +40,16 @@ end
 M.list= function(sum_list)
   local list = vim.deepcopy(sum_list)
   table.sort(list)
+  print("List: " .. vim.inspect(flatten(list)))
   return M.string(fn.join(list," "))
 end
 
 M.table= function(sum_table)
-  return M.list(flatten(sum_table))
+  if vim.tbl_islist(sub_table) then
+    return M.list(sum_table)
+  else
+    return M.list(flatten(sum_table))
+  end
 end
 
 M.file = function (sum_file)

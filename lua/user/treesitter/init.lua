@@ -9,8 +9,8 @@ if not languages_ok then
 end
 
 configs.setup{
-	ensure_installed = languages.install,
-  ignore_install = languages.ignore,
+	ensure_installed = languages.install or {},
+  ignore_install = languages.ignore or {},
 	highlight = {
 		enable = true, -- false will disable the whole extension
 		disable = { "css" }, -- list of language that will be disabled
