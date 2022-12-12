@@ -40,7 +40,6 @@ end
 M.list= function(sum_list)
   local list = vim.deepcopy(sum_list)
   table.sort(list)
-  print("List: " .. vim.inspect(flatten(list)))
   return M.string(fn.join(list," "))
 end
 
