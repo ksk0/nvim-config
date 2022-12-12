@@ -87,7 +87,6 @@ P.treesitter = {
   },
 }
 
-print(vim.inspect(vim.tbl_flatten(P.treesitter)))
 
 -- ============================================================================
 -- Worker functions
