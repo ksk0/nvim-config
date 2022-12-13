@@ -62,29 +62,19 @@ P.treesitter = {
   --  Install support for following
   --  languages automatically
   -- 
-  install = {
-    "bash",
-    "c",
-    "html",
-    "json",
-    "lua",
-    "make",
-    "markdown",
-    "perl",
-    "python",
-    "regex",
-    "toml",
-    "yaml",
-    "awk",
-  },
-
-  -- ===============================
-  --  Ignore this languages
-  -- 
-  ignore = {
-    "vim",
-    "help"
-  },
+  "bash",
+  "c",
+  "html",
+  "json",
+  "lua",
+  "make",
+  "markdown",
+  "perl",
+  "python",
+  "regex",
+  "toml",
+  "yaml",
+  "awk",
 }
 
 
@@ -159,6 +149,24 @@ local init = function ()
   end
 end
 
+local function raw_getval(var, key)
+  if key:find("%.") then
+    local _,_,ckey,skey = key:find("([^.]+)%.(.*)")
+    return raw_getval(var[ckey], skey)
+  else
+    return var[key]
+  end
+end
+
+local function getval(var, key)
+  local ok,rval = pcall(raw_getval, var, key)
+
+  if ok then
+    return rval
+  end
+
+  return
+end
 
 init()
 

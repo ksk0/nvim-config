@@ -9,15 +9,18 @@ if not languages_ok then
 end
 
 configs.setup{
-	ensure_installed = languages.install or {},
-  ignore_install = languages.ignore or {},
-	highlight = {
-		enable = true, -- false will disable the whole extension
-		disable = { "css" }, -- list of language that will be disabled
-	},
-	autopairs = {
-		enable = true,
-	},
-	indent = { enable = true, disable = { "python", "css" } },
+  ensure_installed = languages,
+  ignore_install = {},
+  highlight = {
+    enable = true, -- false will disable the whole extension
+    disable = {"css"},  -- list of language that will be disabled
+  },
+  autopairs = {
+    enable = true,
+  },
+  indent = {
+    enable = true,
+    disable = { "python", "css" }
+  },
 }
 
