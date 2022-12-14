@@ -75,6 +75,8 @@ P.treesitter = {
   "toml",
   "yaml",
   "awk",
+  "vim",
+  "help"
 }
 
 
