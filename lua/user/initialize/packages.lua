@@ -81,6 +81,44 @@ P.treesitter = {
 
 
 -- ============================================================================
+-- Obsolete code:
+--   extract value from table, even if "deep" key does not exist
+--   (i.e. do not raise an error for missing key). Deep key, is
+--   key where key name is "alphanum" and level separator is dot "."
+--
+--   Example:
+--     "some.key.here" in table "example"
+--     
+--     example = {
+--       some = {
+--         key = {
+--           here = ...
+--         }
+--       }
+--     }
+--
+--
+local function raw_getval(var, key)
+  if key:find("%.") then
+    local _,_,ckey,skey = key:find("([^.]+)%.(.*)")
+    return raw_getval(var[ckey], skey)
+  else
+    return var[key]
+  end
+end
+
+local function getval(var, key)
+  local ok,rval = pcall(raw_getval, var, key)
+
+  if ok then
+    return rval
+  end
+
+  return
+end
+
+
+-- ============================================================================
 -- Worker functions
 --
 local read_file = function(file_name)
@@ -142,32 +180,19 @@ end
 local init = function ()
   H.old = load_hashes()
 
-  H.new = {}
+  H.new = vim.deepcopy(H.old)
   H.new.pkgs_file = md5sum.file(files.packages)
   H.new.plug_file = md5sum.file(files.plugins)
 
-  for section in pairs(P) do
-    H.new[section] = md5sum.table(P[section])
+  -- calculate new section hashes only
+  -- if packages file has changed (not
+  -- to waste time).
+  --
+  if H.new.pkgs_file ~= H.old.pkgs_file then
+    for section in pairs(P) do
+      H.new[section] = md5sum.table(P[section])
+    end
   end
-end
-
-local function raw_getval(var, key)
-  if key:find("%.") then
-    local _,_,ckey,skey = key:find("([^.]+)%.(.*)")
-    return raw_getval(var[ckey], skey)
-  else
-    return var[key]
-  end
-end
-
-local function getval(var, key)
-  local ok,rval = pcall(raw_getval, var, key)
-
-  if ok then
-    return rval
-  end
-
-  return
 end
 
 init()
