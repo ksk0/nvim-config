@@ -18,9 +18,7 @@ local function flatten(item, prefix, extension)
     pfx = prefix .. ":"
   end
 
-
   if type(item) ~= "table" then
-    local new_item = pfx .. tostring(item)
     return {pfx .. tostring(item)}
   end
 
@@ -44,7 +42,7 @@ M.list= function(sum_list)
 end
 
 M.table= function(sum_table)
-  if vim.tbl_islist(sub_table) then
+  if vim.tbl_islist(sum_table) then
     return M.list(sum_table)
   else
     return M.list(flatten(sum_table))
