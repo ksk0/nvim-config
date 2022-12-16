@@ -106,5 +106,10 @@ keymap("x", "<A-k>", ":move '<-2<CR>gv-gv", opts)
 
 -- use <Up> and <Down> arrows for command line completion
 --
-vim.cmd [[cnoremap <expr> <Up> wildmenumode() ? "<C-P>" : "<Up>"]]
+vim.cmd [[cnoremap <expr> <Up>   wildmenumode() ? "<C-P>" : "<Up>"]]
 vim.cmd [[cnoremap <expr> <Down> wildmenumode() ? "<C-N>" : "<Down>"]]
+
+-- Indent selected lines
+--
+keymap("v", "<C-L>",  ">><esc>gv", opts)
+keymap("v", "<C-H>",  "<<<esc>gv", opts)
