@@ -2,8 +2,6 @@ local api = vim.api
 local pt = require ("project-tools")
 local project = pt.config.load()
 
-print(vim.inspect(project))
-
 local test_runner
 local ok_tester,tester = pcall (require, "user.testing." .. project.lang)
 
