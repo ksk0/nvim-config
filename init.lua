@@ -22,6 +22,7 @@ require "user.indentline"             -- done
 require "user.alpha"                  -- done
 require "user.whichkey"               -- done (left for later)
 require "user.autocommands"           -- done
+require "user.testing"
 require "user.runner".setup()         -- done
 
 -- require "user.neo-tree"

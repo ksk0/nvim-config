@@ -113,3 +113,9 @@ vim.cmd [[cnoremap <expr> <Down> wildmenumode() ? "<C-N>" : "<Down>"]]
 --
 keymap("v", "<C-L>",  ">><esc>gv", opts)
 keymap("v", "<C-H>",  "<<<esc>gv", opts)
+
+-- folds
+-- 
+-- keymap("v", "zm",  "zmzX", opts)
+
+keymap("n","<C-T>",":RunTests<CR>",opts)
