@@ -32,7 +32,8 @@ local function flatten(item, prefix, extension)
 end
 
 M.string = function(sum_string)
-  return fn.system('md5sum',sum_string):gsub(" .*","")
+  -- return fn.system('md5sum',sum_string):gsub(" .*","")
+  return fn.system('sha1sum',sum_string):gsub(" .*","")
 end
 
 M.list= function(sum_list)

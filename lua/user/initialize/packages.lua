@@ -1,5 +1,5 @@
-local md5sum = require("user.initialize.md5sum")
-local files  = require("user.initialize.files")
+local hash  = require("user.initialize.hash")
+local files = require("user.initialize.files")
 
 local P = {}   -- list of packages (by group)
 local H = {}   -- list of hashes (new and old)
@@ -179,10 +179,9 @@ end
 
 local init = function ()
   H.old = load_hashes()
-
   H.new = vim.deepcopy(H.old)
-  H.new.pkgs_file = md5sum.file(files.packages)
-  H.new.plug_file = md5sum.file(files.plugins)
+  H.new.pkgs_file = hash.file(files.packages)
+  H.new.plug_file = hash.file(files.plugins)
 
   -- calculate new section hashes only
   -- if packages file has changed (not
@@ -190,7 +189,7 @@ local init = function ()
   --
   if H.new.pkgs_file ~= H.old.pkgs_file then
     for section in pairs(P) do
-      H.new[section] = md5sum.table(P[section])
+      H.new[section] = hash.table(P[section])
     end
   end
 end
