@@ -16,23 +16,16 @@ local modules = {
   "user.bufferline",             -- done
   "user.lualine",                -- done
   "user.toggleterm",             -- done
-  "user.project",                -- not in use
+  "user.project",                -- done
   "user.impatient",              -- done
   "user.indentline",             -- done
   "user.alpha",                  -- done
   "user.whichkey",               -- done (left for later)
   "user.autocommands",           -- done
-  "user.testing",
-  "user.runner",                 -- done
-  "user.initialize",
 
   "user.options",                -- done
   "user.keymaps",                -- done
   "user.completion",             -- done
-
-  -- "user.illuminate",          -- done (maybe later)
-  -- "user.neo-tree",
-  -- "user.flexy-files",
 }
 
 local timer = require("user.timer")
@@ -42,12 +35,8 @@ local total = timer.total()
 pass()
 total()
 
-
 for _,module in ipairs(modules) do
   require(module)
 end
-
-
-vim.cmd [[command! -nargs=+ HH :vert help <args>]]
 
 total("Total load time")
