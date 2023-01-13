@@ -177,7 +177,7 @@ return packer.startup(function(use)
   use "ksk0/nvim-bricks"
 
   for _,plugin in pairs(indevelopment) do
-    if vim.fn.isdirectory(plugin) then
+    if vim.fn.isdirectory(plugin) == 1 then
       use(plugin)
     end
   end
