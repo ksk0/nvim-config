@@ -1,4 +1,4 @@
-local modules = {
+local MODULES = {
   "user.initialize",
 
   "user.options",                -- done
@@ -35,7 +35,7 @@ local total = timer.total()
 pass()
 total()
 
-for _,module in ipairs(modules) do
+for _,module in ipairs(MODULES) do
   require(module)
 end
 

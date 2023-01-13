@@ -38,10 +38,15 @@ M.packer = function ()
     end
   end
 
-  local winid = fn.bufwinid(bf_name)
+  if bf_name then
+    local winid = fn.bufwinid(bf_name)
 
-  vim.g.packer_has_done = nil
-  api.nvim_win_close(winid, true)
+    vim.g.packer_has_done = nil
+
+    if winid then
+      api.nvim_win_close(winid, true)
+    end
+  end
 
   pkgs.save_hashes("plug_file")
 end

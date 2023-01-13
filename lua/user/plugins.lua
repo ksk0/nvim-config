@@ -28,11 +28,6 @@ packer.init {
 -- localy developed plugins
 --
 
-local indevelopment = {
-  "/home/koske/develop/nvim/nvim-alt-modes",
-  "/home/koske/develop/nvim/nvim-project-tools",
-}
-
 -- =================================================================
 -- Install plugins
 --
@@ -175,11 +170,6 @@ return packer.startup(function(use)
   --
   use "ksk0/nvim-fade-color"
   use "ksk0/nvim-bricks"
-
-  for _,plugin in pairs(indevelopment) do
-    if vim.fn.isdirectory(plugin) == 1 then
-      use(plugin)
-    end
-  end
+  use "ksk0/nvim-project-tools"
 end)
 
