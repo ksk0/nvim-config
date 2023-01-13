@@ -1,3 +1,1 @@
-local project = require("project-tools")
-
-project.setup()
+require("project-tools"):setup()
