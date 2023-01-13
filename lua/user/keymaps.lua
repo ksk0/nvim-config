@@ -118,4 +118,4 @@ keymap("v", "<C-H>",  "<<<esc>gv", opts)
 -- 
 -- keymap("v", "zm",  "zmzX", opts)
 
-keymap("n","<C-T>",":RunTests<CR>",opts)
+keymap("n","<C-T>",":RunProjectTests<CR>",opts)
