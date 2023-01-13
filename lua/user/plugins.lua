@@ -14,7 +14,7 @@ vim.cmd [[
 
 -- Have packer use a popup window
 --
-packer = require("packer")
+local packer = require("packer")
 
 packer.init {
   display = {
@@ -22,6 +22,15 @@ packer.init {
       return require("packer.util").float { border = "rounded" }
     end,
   },
+}
+
+-- ===============================================================
+-- localy developed plugins
+--
+
+local indevelopment = {
+  "/home/koske/develop/nvim/nvim-alt-modes",
+  "/home/koske/develop/nvim/nvim-project-tools",
 }
 
 -- =================================================================
@@ -167,7 +176,10 @@ return packer.startup(function(use)
   use "ksk0/nvim-fade-color"
   use "ksk0/nvim-bricks"
 
-  use "/home/koske/develop/nvim/nvim-alt-modes"
-  use "/home/koske/develop/nvim/nvim-project-tools"
+  for _,plugin in pairs(indevelopment) do
+    if vim.fn.isdirectory(plugin) then
+      use(plugin)
+    end
+  end
 end)
 
