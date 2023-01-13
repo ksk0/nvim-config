@@ -1,5 +1,6 @@
 local fn = vim.fn
 
+-- add certutil for windows hashes
 
 local M = {}
 
