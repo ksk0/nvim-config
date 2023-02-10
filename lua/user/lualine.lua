@@ -3,6 +3,11 @@ if not status_ok then
 	return
 end
 
+local altmode_ok, altmode = pcall(require, "alt-modes")
+if not altmode_ok then
+	altmode = nil
+end
+
 local hide_in_width = function()
 	return vim.fn.winwidth(0) > 80
 end
@@ -24,12 +29,18 @@ local diff = {
   cond = hide_in_width
 }
 
-local mode = {
-	"mode",
-	fmt = function(str)
-		return "-- " .. str .. " --"
-	end,
-}
+local mode = function ()
+  local mode
+  if altmode then
+    mode = altmode:mode()
+  end
+
+  if not mode then
+    mode = require('lualine.utils.mode').get_mode()
+  end
+
+  return "-- " .. mode .. " --"
+end
 
 local filetype = {
 	"filetype",
