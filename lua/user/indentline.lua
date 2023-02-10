@@ -25,6 +25,7 @@ indent_blankline.setup({
     "lspinfo",
     "checkhealth",
     "man",
+    "text",
     "-",
   },
 
