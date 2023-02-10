@@ -4,6 +4,7 @@ local MODULES = {
   "user.options",                -- done
   "user.keymaps",                -- done
   "user.completion",             -- done
+  "user.project",                -- done
 
   "user.lsp",                    -- done
   "user.dap",                    -- done
@@ -16,7 +17,6 @@ local MODULES = {
   "user.bufferline",             -- done
   "user.lualine",                -- done
   "user.toggleterm",             -- done
-  "user.project",                -- done
   "user.impatient",              -- done
   "user.indentline",             -- done
   "user.alpha",                  -- done
