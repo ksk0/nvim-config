@@ -22,6 +22,7 @@ local MODULES = {
   "user.alpha",                  -- done
   "user.whichkey",               -- done (left for later)
   "user.autocommands",           -- done
+  "user.debug",
 
   "user.options",                -- done
   "user.keymaps",                -- done

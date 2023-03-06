@@ -1,9 +1,11 @@
 local status_ok, lualine = pcall(require, "lualine")
+
 if not status_ok then
 	return
 end
 
 local altmode_ok, altmode = pcall(require, "alt-modes")
+
 if not altmode_ok then
 	altmode = nil
 end
@@ -29,8 +31,16 @@ local diff = {
   cond = hide_in_width
 }
 
+-- local mode = {
+--   "mode",
+--   fmt = function(str)
+--     return "-- " .. str .. "-- "
+--   end,
+-- }
 local mode = function ()
   local mode
+  local altmode = require('alt-modes')
+
   if altmode then
     mode = altmode:mode()
   end

@@ -168,8 +168,10 @@ return packer.startup(function(use)
   -- ===============================================================
   -- localy developed plugins
   --
-  use "ksk0/nvim-fade-color"
   use "ksk0/nvim-bricks"
-  use "ksk0/nvim-project-tools"
+  use "ksk0/nvim-fade-color"
+
+  use "/home/koske/develop/nvim/nvim-alt-modes"
+  use "/home/koske/develop/nvim/nvim-project-tools"
 end)
 
