@@ -24,10 +24,6 @@ packer.init {
   },
 }
 
--- ===============================================================
--- localy developed plugins
---
-
 -- =================================================================
 -- Install plugins
 --
@@ -58,14 +54,14 @@ return packer.startup(function(use)
   -- ===============================================================
   -- Neo-Tree - file system explorer
   --
-  use {
-    "nvim-neo-tree/neo-tree.nvim",
-    requires = {
-      "nvim-lua/plenary.nvim",
-      "kyazdani42/nvim-web-devicons", -- not strictly required, but recommended
-      "MunifTanjim/nui.nvim",
-    },
-  }
+  -- use {
+  --   "nvim-neo-tree/neo-tree.nvim",
+  --   requires = {
+  --     "nvim-lua/plenary.nvim",
+  --     "kyazdani42/nvim-web-devicons", -- not strictly required, but recommended
+  --     "MunifTanjim/nui.nvim",
+  --   },
+  -- }
 
 
   -- ===============================================================
@@ -90,7 +86,7 @@ return packer.startup(function(use)
         terminal_mapping = [[<M-t>]],
       }
     end
-   }
+  }
 
   -- ===============================================================
   -- Commenting
@@ -144,7 +140,7 @@ return packer.startup(function(use)
   use "neovim/nvim-lspconfig" -- simplified/tipical configuration for LSP servers
 
   use "tamago324/nlsp-settings.nvim" -- language server settings defined in json for
-  use "jose-elias-alvarez/null-ls.nvim" -- for formatters and linters
+  -- use "jose-elias-alvarez/null-ls.nvim" -- for formatters and linters
 
   -- ===============================================================
   -- DEBUGGING
@@ -171,7 +167,8 @@ return packer.startup(function(use)
   use "ksk0/nvim-bricks"
   use "ksk0/nvim-fade-color"
 
-  use "/home/koske/develop/nvim/nvim-alt-modes"
   use "/home/koske/develop/nvim/nvim-project-tools"
+  use "/home/koske/develop/nvim/nvim-alt-modes"
+  use "/home/koske/develop/nvim/nvim-widgets"
 end)
 
