@@ -1,14 +1,9 @@
-local status_ok, lualine = pcall(require, "lualine")
+local lualine = require("lualine")
+local path = require('plenary.path')
 
-if not status_ok then
-	return
-end
-
-local altmode_ok, altmode = pcall(require, "alt-modes")
-
-if not altmode_ok then
-	altmode = nil
-end
+local work_buf
+local buff_name = ""
+local work_dir = vim.loop.cwd()
 
 local hide_in_width = function()
 	return vim.fn.winwidth(0) > 80
@@ -31,18 +26,12 @@ local diff = {
   cond = hide_in_width
 }
 
--- local mode = {
---   "mode",
---   fmt = function(str)
---     return "-- " .. str .. "-- "
---   end,
--- }
 local mode = function ()
   local mode
   local altmode = require('alt-modes')
 
   if altmode then
-    mode = altmode:mode()
+    mode = altmode:status()
   end
 
   if not mode then
@@ -50,6 +39,24 @@ local mode = function ()
   end
 
   return "-- " .. mode .. " --"
+end
+
+local filename = function()
+  local buff_path
+  local curr_dir = vim.loop.cwd()
+  local curr_buf = vim.fn.bufnr()
+
+  if not work_buf or (work_dir ~= curr_dir) or (work_buf ~= curr_buf) then
+    work_buf = curr_buf
+    work_dir = curr_dir
+
+    buff_path = path:new(vim.api.nvim_buf_get_name(work_buf))
+    buff_name = buff_path:make_relative()
+
+    return buff_name
+  end
+
+  return buff_name
 end
 
 local filetype = {
@@ -70,6 +77,7 @@ local location = {
 }
 
 -- cool function for progress
+--
 local progress = function()
 	local current_line = vim.fn.line(".")
 	local total_lines = vim.fn.line("$")
@@ -99,14 +107,14 @@ lualine.setup({
 		lualine_c = {},
 		-- lualine_x = { "encoding", "fileformat", "filetype" },
 		-- lualine_x = { diff, spaces, "encoding", filetype },
-		lualine_x = { filetype },
+		lualine_x = { filename, filetype },
 		lualine_y = { location },
 		lualine_z = { progress },
 	},
 	inactive_sections = {
 		lualine_a = {},
 		lualine_b = {},
-		lualine_c = { "filename" },
+		lualine_c = {},
 		lualine_x = { "location" },
 		lualine_y = {},
 		lualine_z = {},
