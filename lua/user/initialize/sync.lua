@@ -4,27 +4,8 @@ local pkgs = require("user.initialize.packages")
 
 local M = {}
 
-M.packer = function ()
-  if not pkgs.is_new("plug_file") then return end
-
-  vim.g.packer_has_done = 0
-
-  -- when packer sync is done, set global variable
-  --
-  vim.cmd 'autocmd User PackerComplete let g:packer_has_done = 1'
-  vim.cmd 'PackerSync'
-
-  vim.notify("Initializing packer")
-
-  -- wait for global variable to be set, signaling
-  -- end of PackerSync
-  --
-  while vim.g.packer_has_done ~= 1 do
-    vim.cmd [[
-      redraw
-      sleep 200m
-    ]]
-  end
+local close_packer_window = function()
+  -- api.nvim_del_user_command("PackerComplete")
 
   -- find and close floating window
   --
@@ -49,6 +30,20 @@ M.packer = function ()
   end
 
   pkgs.save_hashes("plug_file")
+end
+
+M.packer = function()
+  if not pkgs.is_new("plug_file") then return end
+
+  vim.api.nvim_create_autocmd(
+     "User",
+    {
+      pattern = "PackerComplete",
+      callback = close_packer_window,
+    }
+  )
+
+  vim.cmd 'PackerSync'
 end
 
 M.mason = function ()
