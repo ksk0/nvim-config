@@ -9,7 +9,7 @@ vim.fn.sign_define('DapStopped', {text='', texthl='', linehl='', numhl=''})
 
 set_keymap('n', '<leader>dh', function() require("dap").toggle_breakpoint() end, opts)
 set_keymap('n', '<leader>dH', function() require("dap").set_breakpoint(vim.fn.input("Breakpoint condition: ")) end, opts)
-set_keymap('n', '<A-k>',      function() require("dap").step_out() end, opts)
+-- set_keymap('n', '<A-k>',      function() require("dap").step_out() end, opts)
 set_keymap('n', "<A-l>",      function() require("dap").step_into() end, opts)
 set_keymap('n', '<A-j>',      function() print("step"); require"dap".step_over() end, opts)
 set_keymap('n', '<A-h>',      function() require("dap").continue() end, opts)
