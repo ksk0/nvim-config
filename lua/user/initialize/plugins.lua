@@ -2,7 +2,7 @@
 --
 --
 local packer = require("packer")
-local window_shutter
+local packer_waiter
 
 local api = vim.api
 local fn  = vim.fn
@@ -32,7 +32,6 @@ end
 -- Close packer floating window (which we get when we issue "sync")
 --
 local close_packer_window = function()
-  delete_autocmd(window_shutter)
 
   -- find and close packer floating window
   --
@@ -200,6 +199,38 @@ local packer_config = {function (use)
   use "/home/koske/develop/nvim/nvim-widgets"
 end}
 
+local exec_packer_sync = function()
+  -- vim.notify("Packer syncer")
+  -- do return end
+
+  local packer_running = true
+
+  local packer_signaler = function ()
+    packer_running = false
+  end
+
+  packer_waiter = vim.api.nvim_create_autocmd(
+     "User",
+    {
+      pattern = "PackerComplete",
+      callback = packer_signaler,
+    }
+  )
+
+  packer.startup(packer_config)
+  vim.cmd 'PackerSync'
+
+  while packer_running do 
+    vim.cmd[[
+      redraw
+      sleep 100m
+    ]]
+  end
+
+  delete_autocmd(packer_waiter)
+  close_packer_window()
+end
+
 local sync_packer = function()
   -- ==============================================
   -- check if "stored" and current versions of this
@@ -224,19 +255,11 @@ local sync_packer = function()
   --
   if hash[old_content] then return end
 
+  -- copy current file to archive
+  --
   vim.loop.fs_copyfile(new_config, old_config)
 
-  window_shutter = vim.api.nvim_create_autocmd(
-     "User",
-    {
-      pattern = "PackerComplete",
-      callback = close_packer_window,
-    }
-  )
-
-  packer.startup(packer_config)
-
-  vim.cmd 'PackerSync'
+  exec_packer_sync()
 end
 
 local init_packer = function()
