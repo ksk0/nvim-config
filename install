@@ -154,7 +154,7 @@ install_config(){
 	local src=${CONFIG_DIR##*/}
 
 	cp -r $SCRIPT_DIR $CONFIG_DIR
-	rm -f $CONFIG_DIR/.hashes
+	rm -f $CONFIG_DIR/lua/user/initialize/.plugins
 
 	cat <<-EOF | alert_box --expand
 		"nvim-config" has been installed.
