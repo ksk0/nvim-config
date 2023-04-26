@@ -1,7 +1,7 @@
--- =============================================================
+-- ==================================================================
 -- For each DAP adapter ther will be config file in "adapters"
 -- directory. List the files in directory to get the list of
--- required/configured adapters
+-- required/configured adapters (ignore this file, i.e. "init.lua")
 --
 local dap_adapters = function ()
   local adapters_dir = debug.getinfo(2, "S").source:sub(2):match("(.*/)")
@@ -21,7 +21,7 @@ local dap_adapters = function ()
 end
 
 
--- =============================================================
+-- ==================================================================
 -- Setup "mason-nvim-dap" to automaticaly download needed
 -- adapters.
 --
@@ -33,7 +33,7 @@ require ('mason-nvim-dap').setup({
 })
 
 
--- =============================================================
+-- ==================================================================
 -- Setup adapter for every language in dap/adapters directory
 --
 local dap = require('dap')
