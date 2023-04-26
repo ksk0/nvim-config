@@ -238,8 +238,9 @@ local sync_packer = function()
   -- If not same, sync packer.
   --
   local script_dir = debug.getinfo(2, "S").source:sub(2):match("(.*/)")
+  local cache_dir  = fn.stdpath("cache")
 
-  local old_config = script_dir .. ".plugins"
+  local old_config = cache_dir  .. "/packer-plugins"
   local new_config = script_dir .. "plugins.lua"
 
   local old_content = read_file(old_config)
