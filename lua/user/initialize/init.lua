@@ -17,16 +17,18 @@ download("ksk0/nvim-bricks")
 download("williamboman/mason.nvim")
 download("williamboman/mason-lspconfig.nvim")
 download("jay-babu/mason-nvim-dap.nvim")
+download("lewis6991/impatient.nvim")
 
 -- =================================================
--- Initialize some of the plugins
+-- Initialize some of core the plugins
 --
-require("user.bricks")
-require("user.colorscheme")
-require("user.notify")
+require("user.initialize.bricks")
+require("user.initialize.colorscheme")
+require("user.initialize.notify")
 
 -- =================================================
--- Initialize packer plugins and mason
+-- Initialize packer plugins, mason and impatient
 --
 require("user.initialize.plugins").setup()
 require("mason").setup()
+require("impatient")

@@ -73,6 +73,7 @@ local packer_config = {function (use)
   use "williamboman/mason.nvim"
   use "williamboman/mason-lspconfig.nvim"
   use "jay-babu/mason-nvim-dap.nvim"
+  use "lewis6991/impatient.nvim" -- speed up loadgin of lua modules by caching
 
   -- ===============================================================
   -- My plugins here
@@ -85,7 +86,6 @@ local packer_config = {function (use)
   use "nvim-lualine/lualine.nvim" -- enhanced status line
 
   -- use "ahmedkhalf/project.nvim"
-  use "lewis6991/impatient.nvim" -- speed up loadgin of lua modules by caching
   use "lukas-reineke/indent-blankline.nvim" -- adds indentation guides to all lines 
   use "goolord/alpha-nvim" -- neovim greeter (splash screen with menu)
   use "antoinemadec/FixCursorHold.nvim" -- This is needed to fix lsp doc highlight
