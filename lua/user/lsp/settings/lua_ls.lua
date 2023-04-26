@@ -15,7 +15,12 @@ M.settings = {
 }
 
 M.on_attach = function (client)
+  -- ===================================
+  -- Do not format not syntax highlight
+  -- using LSP.
+  --
   client.server_capabilities.documentFormattingProvider = false
+  client.server_capabilities.semanticTokensProvider = false
 end
 
 
