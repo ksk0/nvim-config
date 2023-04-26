@@ -11,13 +11,16 @@ end
 configs.setup{
   ensure_installed = languages,
   ignore_install = {},
+
   highlight = {
-    enable = true, -- false will disable the whole extension
+    enable = true,      -- false will disable the whole extension
     disable = {"css"},  -- list of language that will be disabled
   },
+
   autopairs = {
     enable = true,
   },
+
   indent = {
     enable = true,
     disable = { "python", "css" }

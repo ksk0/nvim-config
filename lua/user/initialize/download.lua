@@ -2,7 +2,7 @@ local fn = vim.fn
 
 local M = {}
 
-M.download= function(plugin)
+local download = function(plugin)
   if not plugin then return end
 
   if type(plugin) == "table" then
@@ -37,5 +37,4 @@ M.download= function(plugin)
   vim.cmd ("packadd " .. plugin_name)
 end
 
-return M
-
+return download

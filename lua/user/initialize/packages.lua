@@ -53,8 +53,8 @@ P.DAP = {
   -- ==========================================================================
   --  DAP (Debug Adapter Protocol) servers
   -- 
-  "debugpy",                     -- debug adapter protocol for python
-  "bash-debug-adapter",          -- debug adapter for bash
+  "python",
+  "bash",
 }
 
 P.treesitter = {

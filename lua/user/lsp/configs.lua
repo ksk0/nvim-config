@@ -1,37 +1,9 @@
-local mason_ok, mason = pcall(require, "mason")
-if not mason_ok then
-	return
-end
 
-local mason_lspconfig_ok, mason_lspconfig = pcall(require, "mason-lspconfig")
-if not mason_lspconfig_ok then
-	return
-end
+local mason_lspconfig = require("mason-lspconfig")
+local lspconfig       = require("lspconfig")
+local servers         = require("user.lsp.servers")
 
-local lspconfig_ok, lspconfig = pcall(require, "lspconfig")
-if not lspconfig_ok then
-	return
-end
-
-local servers_ok, servers = pcall(require, "user.lsp.servers")
-if not servers_ok then
-	servers = {}
-end
-
-mason.setup()
-mason_lspconfig.setup{
-  ensure_installed = servers
-}
-
--- local installer_ok, lsp_installer = pcall(require, "nvim-lsp-installer")
--- if not installer_ok then
--- 	return
--- end
-
-
--- lsp_installer.setup {
---   ensure_installed = servers
--- }
+mason_lspconfig.setup{ensure_installed = servers}
 
 -- =======================================================================
 -- as part of init proces, each LSP server will be configured using

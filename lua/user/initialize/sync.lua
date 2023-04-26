@@ -7,7 +7,7 @@ local M = {}
 local close_packer_window = function()
   -- api.nvim_del_user_command("PackerComplete")
 
-  -- find and close floating window
+  -- find and close packer floating window
   --
   local bf_name
 

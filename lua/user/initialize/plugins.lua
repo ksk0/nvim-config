@@ -1,42 +1,83 @@
-do return end
-
 -- =================================================================
 --
---
-
--- Autocommand that reloads neovim whenever you save the plugins.lua file
---
-vim.cmd [[
-  augroup packer_user_config
-    autocmd!
-    autocmd BufWritePost plugins.lua source <afile> | PackerSync
-  augroup end
-]]
-
-
--- Have packer use a popup window
 --
 local packer = require("packer")
+local window_shutter
 
-packer.init {
-  display = {
-    open_fn = function()
-      return require("packer.util").float { border = "rounded" }
-    end,
-  },
-}
+local api = vim.api
+local fn  = vim.fn
+
+local create_autocmd = api.nvim_create_autocmd
+local create_augroup = api.nvim_create_augroup
+local delete_autocmd = api.nvim_del_autocmd
+
 
 -- =================================================================
--- Install plugins
+-- Helper functions
 --
-return packer.startup(function(use)
+local read_file = function(file_name)
+  local f = io.open(file_name, "r")
+
+  if not f then return "" end
+
+  local content = f:read("all")
+
+  f:close()
+
+  return content
+end
+
+
+-- =================================================================
+-- Close packer floating window (which we get when we issue "sync")
+--
+local close_packer_window = function()
+  delete_autocmd(window_shutter)
+
+  -- find and close packer floating window
+  --
+  for _,buffer in pairs(fn.tabpagebuflist()) do
+    local buffer_name = vim.api.nvim_buf_get_name(buffer)
+
+    if buffer_name:find('%[packer%]$') then
+      local window = fn.bufwinid(buffer)
+      if window then
+        api.nvim_win_close(window, true)
+      end
+
+      return
+    end
+  end
+end
+
+
+-- =================================================================
+-- Config plugins
+--
+local packer_config = {function (use)
+
+  -- ===============================================================
+  -- Core plugins. This plugins are donwloaded with "initialize"
+  -- script itself (if not already present), but we have to list
+  -- them here, since responsibility for their upgrade is up to
+  -- packer.
+  --
+  -- (this could possibly could change in the future)
+  --
+  use "wbthomason/packer.nvim"
+  use "nvim-treesitter/nvim-treesitter"
+  use "navarasu/onedark.nvim"
+  use "rcarriga/nvim-notify"
+  use "nvim-lua/plenary.nvim"
+  use "ksk0/nvim-bricks"
+  use "williamboman/mason.nvim"
+  use "williamboman/mason-lspconfig.nvim"
+  use "jay-babu/mason-nvim-dap.nvim"
 
   -- ===============================================================
   -- My plugins here
   --
-  use "wbthomason/packer.nvim" -- Have packer manage itself
   use "nvim-lua/popup.nvim" -- An implementation of the Popup API from vim in Neovim
-  use "nvim-lua/plenary.nvim" -- Useful lua functions used by lots of plugins
 
   use "windwp/nvim-autopairs" -- Autopairs, integrates with both cmp and treesitter
   use "akinsho/bufferline.nvim" -- enhanced buffer line
@@ -49,7 +90,6 @@ return packer.startup(function(use)
   use "goolord/alpha-nvim" -- neovim greeter (splash screen with menu)
   use "antoinemadec/FixCursorHold.nvim" -- This is needed to fix lsp doc highlight
   use "folke/which-key.nvim"  -- popup showing possible key bindings
-  use "rcarriga/nvim-notify" -- fancy notification manager (vim.notify command fancier)
   use "lewis6991/gitsigns.nvim" -- Git decoration of code (added, deleted, modified lines) 
   use "nvim-telescope/telescope.nvim" -- fuzzy finder over lists
 
@@ -107,16 +147,6 @@ return packer.startup(function(use)
   }
 
   -- ===============================================================
-  -- Colorschemes
-  --
-  use "navarasu/onedark.nvim"
-
-  -- ===============================================================
-  -- TreeSitter plugin
-  --
-  use "nvim-treesitter/nvim-treesitter"
-
-  -- ===============================================================
   -- Completion plugins
   --
   use "hrsh7th/nvim-cmp" -- The completion plugin
@@ -137,12 +167,9 @@ return packer.startup(function(use)
   -- ===============================================================
   -- LSP
   --
-  use "williamboman/mason.nvim" -- replaces "nvim-lsp-installer" plugin
-  use "williamboman/mason-lspconfig.nvim" -- bridge to "nvim-lspconfig"
   use "neovim/nvim-lspconfig" -- simplified/tipical configuration for LSP servers
-
   use "tamago324/nlsp-settings.nvim" -- language server settings defined in json for
-  -- use "jose-elias-alvarez/null-ls.nvim" -- for formatters and linters
+  use "jose-elias-alvarez/null-ls.nvim" -- for formatters and linters
 
   -- ===============================================================
   -- DEBUGGING
@@ -166,11 +193,80 @@ return packer.startup(function(use)
   -- ===============================================================
   -- localy developed plugins
   --
-  use "ksk0/nvim-bricks"
   use "ksk0/nvim-fade-color"
 
   use "/home/koske/develop/nvim/nvim-project-tools"
   use "/home/koske/develop/nvim/nvim-alt-modes"
   use "/home/koske/develop/nvim/nvim-widgets"
-end)
+end}
+
+local sync_packer = function()
+  local script_dir = debug.getinfo(2, "S").source:sub(2):match("(.*/)")
+
+  local old_config = script_dir .. ".plugins"
+  local new_config = script_dir .. "plugins.lua"
+
+  local old_content = read_file(old_config)
+  local new_content = read_file(new_config)
+
+  local hash = {}
+
+  hash[old_content] = false
+  hash[new_content] = true
+
+  if hash[old_content] then return end
+
+  vim.loop.fs_copyfile(new_config, old_config)
+
+  window_shutter = vim.api.nvim_create_autocmd(
+     "User",
+    {
+      pattern = "PackerComplete",
+      callback = close_packer_window,
+    }
+  )
+
+  packer.startup(packer_config)
+
+  vim.cmd 'PackerSync'
+end
+
+local init_packer = function()
+  -- =======================================
+  -- Have packer use a popup window
+  --
+  packer.init {
+    display = {
+      open_fn = function()
+        return require("packer.util").float { border = "rounded" }
+      end,
+    },
+  }
+
+  packer.startup(packer_config)
+
+  local group = create_augroup('PackerUserConfigSync', {})
+
+  create_autocmd(
+    "BufWritePost",
+    {
+      pattern  = 'plugins.lua',
+      group    = group,
+      callback = function()
+        require('plenary.reload').reload_module('user.initialize.plugins')
+        require('user.initialize.plugins').sync()
+      end
+    }
+  )
+
+  sync_packer()
+end
+
+
+local M = {}
+
+M.setup = init_packer
+M.sync  = sync_packer
+
+return M
 
