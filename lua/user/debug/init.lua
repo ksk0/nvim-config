@@ -2,16 +2,28 @@ local set_keymap = vim.keymap.set
 local loop = vim.loop
 local api = vim.api
 
-local altmodes  = require("alt-modes")
-local ptools    = require("project-tools")
-local normal    = require("alt-modes.native.normal")
 local dap       = require("dap")
 local bpt       = require('dap.breakpoints')
 local cmd_after = dap.listeners.after
 local dapui     = require('dapui')
 
+local altmodes
+local ptools
+local normal = {}
+
 local DEBUGGING
 local OSV_RUNNING
+
+-- =============================================
+-- load modules
+--
+local load_modules = function()
+  altmodes  = require("alt-modes")
+  ptools    = require("project-tools")
+  normal    = require("alt-modes.native.normal")
+
+  return true
+end
 
 -- =============================================
 -- widget functions
@@ -324,6 +336,9 @@ local debug_keymaps = {
 }
 
 local init = function()
+  local ok,_ = pcall(load_modules)
+  if not ok then return end
+
   local opts = {
     noremap = true,
     silent = true
