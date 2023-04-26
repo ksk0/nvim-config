@@ -201,6 +201,11 @@ local packer_config = {function (use)
 end}
 
 local sync_packer = function()
+  -- ==============================================
+  -- check if "stored" and current versions of this
+  -- file are same (use hasing mechanism of table).
+  -- If not same, sync packer.
+  --
   local script_dir = debug.getinfo(2, "S").source:sub(2):match("(.*/)")
 
   local old_config = script_dir .. ".plugins"
@@ -214,6 +219,9 @@ local sync_packer = function()
   hash[old_content] = false
   hash[new_content] = true
 
+  -- current version of "plugins.lua" is same
+  -- as archived one. Do nothing!
+  --
   if hash[old_content] then return end
 
   vim.loop.fs_copyfile(new_config, old_config)
