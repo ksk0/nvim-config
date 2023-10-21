@@ -53,8 +53,8 @@ local glyphs = {
 nvim_tree.setup {
   on_attach = on_attach,
 
-  remove_keymaps = {
-  },
+  -- remove_keymaps = {
+  -- },
 
   renderer ={
     icons = {
